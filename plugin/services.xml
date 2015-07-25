@@ -1,0 +1,19 @@
+<smconfig>
+	<service name="Telnet" package="busybox-inetd" initscript="inetd.busybox" demon="telnetd" description="Interactive communication facility on virtual terminal connection" />
+	<service name="Vsftpd" package="vsftpd" initscript="inetd.busybox" demon="vsftpd" description="Secure and fast FTP server" conffile="/etc/vsftpd.conf" />
+	<service name="Dropbear" package="dropbear" initscript="dropbear" demon="dropbear" description="Relatively small SSH server and client" pidfile="/var/run/dropbear.pid" />
+	<service name="Samba" package="sambaserver" servicescripts="/etc/network/if-down.d/01samba-kill,/etc/network/if-up.d/01samba-start" demon="smbd" description="Support for cross-platform file and printer sharing" conffile="/etc/samba/smb.conf" />
+	<service name="Cron" package="busybox-cron" initscript="busybox-cron" demon="crond" description="Daemon to execute scheduled commands" />
+	<service name="Syslog" package="busybox-syslog" initscript="syslog.busybox" demon="syslogd" description="Standard for system logging message management" pidfile="/var/run/syslogd.pid" />
+	<service name="Avahi daemon" package="avahi-daemon" initscript="avahi-daemon" demon="avahi-daemon" description="Zero-configuration networking (zeroconf) implementation" conffile="/etc/avahi/avahi-daemon.conf" pidfile="/var/run/avahi-daemon/pid" />
+	<service name="Streamproxy" package="streamproxy" initscript="streamproxy.sh" demon="streamproxy" description="Replace the streamproxy, transtreamproxy and filestreamproxy" conffile="/etc/enigma2/streamproxy.conf" />
+	<service name="Autofs" package="autofs" initscript="autofs" demon="automount" description="Kernel based automounter for linux" conffile="/etc/autofs.conf" />
+	<service name="Djmount" package="djmount" initscript="djmount" demon="djmount" description="Mount UPnP server content as a linux filesystem" />
+	<service name="Transmission" package="transmission" initscript="transmission" demon="transmission-daemon" description="Transmission is a BitTorrent client" />
+	<service name="Dvbsnoop" package="dvbsnoop" initscript="" demon="dvbsnoop" description="DVB/MPEG stream analyzer" />
+	<service name="Ushare" package="ushare" initscript="ushare" demon="ushare" description="UPnP media server" conffile="/etc/ushare.conf" />
+	<service name="Inadyn" package="inadyn-mt" initscript="inadyn-mt" demon="inadyn-mt" description="Client used to update DNS entries" conffile="/etc/inadyn.conf" />
+	<service name="Rsync" package="rsync" demon="rsync" description="File synchronization tool" conffile="/etc/rsyncd.conf" />
+</smconfig>
+
+

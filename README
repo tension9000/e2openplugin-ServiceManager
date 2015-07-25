@@ -1,0 +1,13 @@
+                             <<< Service Manager >>>                           
+                  
+           Open Source ServiceManager plugin for E2 based Linux set-top box
+
+
+                                 Depends
+                  Depends enigma2 (>= 2.6git20090926)
+
+                                                                            
+  This file is open source software; you can redistribute it and/or modify  
+     it under the terms of the GNU General Public License version 2 as      
+               published by the Free Software Foundation.                   
+

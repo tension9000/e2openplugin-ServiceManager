@@ -555,7 +555,7 @@ class ServiceCenter(Screen):
 
 		self.createServiceList()
 		if len(self.serviceList):
-			self.checkServiceListStatus()
+			self.checkServiceListStatus(self.serviceList)
 			self.getPkgInfo()
 			self.updateServiceListState()			
 
@@ -598,7 +598,7 @@ class ServiceCenter(Screen):
 		except:
 			print "[ServiceManager] could not read sm config file: 'services.xml'"
 
-	def checkServiceListStatus(self, services=self.serviceList):
+	def checkServiceListStatus(self, services):
 		try:
 			statusfile = open("/var/lib/opkg/status", "r").read()
 			for srv in services:
@@ -667,7 +667,7 @@ class ServiceCenter(Screen):
 			self["status"].setText(text)
 			message = self.session.open(MessageBox, text, MessageBox.TYPE_INFO, timeout=4)
 			message.setTitle(_("Package installer"))
-			self.checkServiceListStatus()
+			self.checkServiceListStatus(self.serviceList)
 			self.getPkgInfo()
 			self.updateServiceListState()
 		else:

@@ -578,6 +578,7 @@ class ServiceCenter(Screen):
 					text += "\n                    >>  ready to requests"
 				else:
 					text += "\n                    >>  not running"
+			text += "\n\nPress OK to open %s control panel" % current['name']
 		else:
 			text += " not installed!\n\nPress OK to install it now."
 		self['status'].setText(text)

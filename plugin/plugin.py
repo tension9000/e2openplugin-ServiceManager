@@ -509,7 +509,7 @@ class ServiceCenter(Screen):
   <screen name="ServiceCenter" position="fill" title="Service Control Center" flags="wfNoBorder">
     <panel name="PigTemplate"/>
     <panel name="KeyMenuTemplate"/>
-    <panel name="ButtonTemplate_RGS"/>   
+    <panel name="ButtonTemplate_RGYS"/>   
     <widget source="list" render="Listbox" position="540,145" size="660,420" zPosition="3" transparent="1" scrollbarMode="showOnDemand" selectionPixmap="PLi-HD/buttons/sel.png">
 	<convert type="TemplatedMultiContent">
 		{"template": [
@@ -535,6 +535,7 @@ class ServiceCenter(Screen):
 		self.list = []
 		self.index = None
 		self.serviceList = []
+		self.view_running_only = False
 		self["list"] = List(self.list)
 
 		self["actions"] = ActionMap(["OkCancelActions", "ColorActions", "SetupActions", "MenuActions"],
@@ -542,12 +543,14 @@ class ServiceCenter(Screen):
 			"ok": self.selectService,
 			"cancel": self.close,
 			"red": self.close,
+			"yellow": self.switchList,
 			"green": self.selectService,
 			"menu": self.pluginsetup,
 		}, -2)
 
 		self["key_red"] = StaticText(_("Close"))
 		self["key_green"] = StaticText("OK")
+		self["key_yellow"] = StaticText("View running")
 		self["status"] = StaticText("")
 		self["menuinfo"] = StaticText(_("Press MENU for plugin setup"))
 
@@ -654,12 +657,23 @@ class ServiceCenter(Screen):
 	def updateEntryList(self):
 		self.list = []
 		for service in self.serviceList:
+			if self.view_running_only and not service['state']:
+				continue
 			self.list.append(self.buildEntryComponent(service))
 		self['list'].setList(self.list)	
 		self['list'].updateList(self.list)
 		if self.index is not None:
 			self["list"].setIndex(self.index)
 			self.index = None
+
+	def switchList(self):
+		if self.view_running_only:
+			self.view_running_only = False
+			self["key_yellow"].setText("View running")
+		else:
+			self.view_running_only = True
+			self["key_yellow"].setText("View all")
+		self.updateEntryList()
 
 	def checkInstall(self):
 		self.checkServiceListStatus([self.installpkg])

@@ -535,7 +535,7 @@ class ServiceCenter(Screen):
 		self.list = []
 		self.index = None
 		self.serviceList = []
-		self.view_running_only = False
+		self.running_view = False
 		self["list"] = List(self.list)
 
 		self["actions"] = ActionMap(["OkCancelActions", "ColorActions", "SetupActions", "MenuActions"],
@@ -654,26 +654,45 @@ class ServiceCenter(Screen):
 
 		return ((service['name'], service['description'], service_status_png, service_state_png, div_png, service))
 
+	def somethingRunning(self):
+		for service in self.serviceList:
+			if service['state']:
+				return True
+		return False
+				
 	def updateEntryList(self):
 		self.list = []
+		self.rlist = []
 		for service in self.serviceList:
-			if self.view_running_only and not service['state']:
-				continue
+			if service['state']:
+				self.rlist.append(self.buildEntryComponent(service))
 			self.list.append(self.buildEntryComponent(service))
-		self['list'].setList(self.list)	
+		if len(self.rlist) == 0:
+			self["key_yellow"].setText("")
+		elif self.running_view:
+			self["key_yellow"].setText("View all")
+			self.list = self.rlist
+		else:
+			self["key_yellow"].setText("View running")
+		self['list'].setList(self.list)
 		self['list'].updateList(self.list)
 		if self.index is not None:
 			self["list"].setIndex(self.index)
 			self.index = None
 
 	def switchList(self):
-		if self.view_running_only:
-			self.view_running_only = False
-			self["key_yellow"].setText("View running")
+		if self.running_view:
+			if self.somethingRunning():
+				self.running_view = False
+				self["key_yellow"].setText("View running")
+				self.updateEntryList()
 		else:
-			self.view_running_only = True
+			if not self.somethingRunning():
+				return
+			self.running_view = True
 			self["key_yellow"].setText("View all")
-		self.updateEntryList()
+			self.updateEntryList()
+			self.selectionChanged()
 
 	def checkInstall(self):
 		self.checkServiceListStatus([self.installpkg])

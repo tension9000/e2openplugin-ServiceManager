@@ -274,7 +274,7 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 			self.sc.runCmd(servicescripts[0], self.runCmdFinished)
 		elif action == "start":
 			self.sc.runCmd(servicescripts[1], self.runCmdFinished)
-		elif action == "restart" or action == "start" and self.service['state']:
+		elif action == "restart":
 			self.sc.runCmd(servicescripts[0], self.runCmdFinished)
 			self.sc.runCmd(servicescripts[1], self.runCmdFinished)
 
@@ -311,7 +311,10 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 		self.update_state_timer.start(500, True)
 
 	def startService(self):
-		self.startStopService("start")
+		if self.service['state']:
+			self.startStopService("restart")
+		else:
+			self.startStopService("start")
 
 	def stopService(self):
 		self.startStopService("stop")

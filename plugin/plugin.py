@@ -75,25 +75,25 @@ class ServiceController():
 	def __init__(self):
 		self.Console = Console()
 
-	def listProcesses(self, args):
+	def checkProcList(self, args):								# args: list of arguments
 		if not self.Console:
 			self.Console = Console()
-		self.Console.ePopen("ps", self.listProcessesFinished, args)
+		self.Console.ePopen("ps", self.checkProcListFinished, args)
 
-	def listProcessesFinished(self, result, retval, args):
+	def checkProcListFinished(self, result, retval, args):
 		(callback) = args[0]
 		srvlist = args[1]
 		if result:
 			for srv in srvlist:
 				srv['state'] = False
 				for line in result.splitlines():
-					tokens = line.split()
-					name = tokens[4].strip()
-					if name.startswith("/"):			# split path
-						(path, name) = os.path.split(name)
-					if name.endswith(":"):				# avahi-daemon(:)
-						name = name.split(":")[0]
-					if name == srv['demon']:
+					fields = line.split()
+					command = fields[4].strip()
+					if command.startswith("/"):				# split path from command
+						(path, command) = os.path.split(command)
+					if command.endswith(":"):				# avahi-daemon(:)
+						command = command.split(":")[0]
+					if command == srv['demon']:
 						srv['state'] = True
 						break
 				print "[ServiceController] service: %s  state: %s" % (srv['name'], srv['state'])
@@ -199,7 +199,7 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 			self.service['state'] = fileExists(self.service['pidfile'])
 			self.updateStatePic(self.service['state'])
 		else:
-			self.sc.listProcesses([self.updateServiceStateFinished, [self.service]])
+			self.sc.checkProcList([self.updateServiceStateFinished, [self.service]])
 
 	def getServiceBootSettingFinished(self, data):
 		if data:
@@ -207,7 +207,7 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 			self.createBootConfigEntry()
 
 	def getServiceBootSetting(self):
-		initmode = False
+		init_script_mode = False
 		if self.service['name'] == "Telnet":
 			self.start_at_boot = readInetdConfFile("telnet")
 		elif self.service['name'] == "Vsftpd":
@@ -215,9 +215,9 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 		elif self.service['name'] == "Samba":
 			self.start_at_boot = fileExists("/etc/network/if-up.d/01samba-start")
 		elif self.service.has_key('initscript'):
-			initmode = True
+			init_script_mode = True
 			self.sc.runCmd("update-rc.d -n %s defaults" % self.service['initscript'], self.getServiceBootSettingFinished)
-		if not initmode:
+		if not init_script_mode:
 			self.createBootConfigEntry()
 
 	def createBootConfigEntry(self):
@@ -331,15 +331,15 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 			self.sc.runCmd(x) 		
 
 	def saveBootSetting(self):
-		newvalue = self["config"].getCurrent()[1].value
+		must_start_at_boot = self["config"].getCurrent()[1].value
 		if self.service['name'] == "Telnet":
 			writeInetdConfFile("telnet")
 		elif self.service['name'] == "Vsftpd":
 			writeInetdConfFile("ftp")
 		elif self.service['name'] == "Samba":
-			self.moveSambaScripts(newvalue)
+			self.moveSambaScripts(must_start_at_boot)
 		elif self.service.has_key('initscript'):
-			if newvalue:
+			if must_start_at_boot:
 				init_cmd = "update-rc.d %s defaults"
 			else:
 				init_cmd = "update-rc.d -f %s remove"
@@ -637,7 +637,7 @@ class ServiceCenter(Screen):
 			self.updateEntryList()
 
 	def updateServiceListState(self):
-		self.sc.listProcesses([self.updateServiceListStateFinished, self.serviceList])
+		self.sc.checkProcList([self.updateServiceListStateFinished, self.serviceList])
 
 	def buildEntryComponent(self, service):
 		div_png = LoadPixmap(cached=True, path=resolveFilename(SCOPE_CURRENT_SKIN, "skin_default/div-h.png"))

@@ -442,7 +442,7 @@ class ServiceCenterSetup(Screen, ConfigListScreen):
 		self["actions"] = ActionMap(["SetupActions", "MenuActions"],
 			{
 				"cancel": self.keyCancel,
-				"save": self.apply,
+				"save": self.saveSettings,
 				"menu": self.keyCancel,
 			}, -2)
 
@@ -470,44 +470,20 @@ class ServiceCenterSetup(Screen, ConfigListScreen):
 	def keyRight(self):
 		ConfigListScreen.keyRight(self)
 
-	def confirm(self, confirmed):
+	def apply(self, confirmed):
 		if not confirmed:
-			return
-		self.keySave()
+			self.close()
+		self.saveAll()
+		self.close(True)
 		plugins.clearPluginList()
 		plugins.readPluginList(resolveFilename(SCOPE_PLUGINS))
 
-	def apply(self):
-		self.session.openWithCallback(self.confirm, MessageBox, _("Use these settings?"), MessageBox.TYPE_YESNO, timeout = 20, default = True)
-
-	def cancelConfirm(self, result):
-		if not result:
-			return
-		for x in self["config"].list:
-			x[1].cancel()
-		self.close()
-
-	def keyCancel(self):
+	def saveSettings(self):
 		if self["config"].isChanged():
-			self.session.openWithCallback(self.cancelConfirm, MessageBox, _("Really close without saving settings?"), MessageBox.TYPE_YESNO, timeout = 10, default = True)
+			self.session.openWithCallback(self.apply, MessageBox, _("Apply new settings?"), MessageBox.TYPE_YESNO, timeout = 20, default = True)
 		else:
 			self.close()
-
-	def changedEntry(self):
-		for x in self.onChangedEntry:
-			x()
-		self.selectionChanged()
-
-	def getCurrentEntry(self):
-		return self["config"].getCurrent()[0]
-
-	def getCurrentValue(self):
-		return str(self["config"].getCurrent()[1].value)
-
-	def createSummary(self):
-		from Screens.Setup import SetupSummary
-		return SetupSummary
-
+			
 class ServiceCenter(Screen):
 
 	skin = """
@@ -745,7 +721,11 @@ class ServiceCenter(Screen):
 		self.updateEntryList()
 
 	def pluginsetup(self):
-		self.session.open(ServiceCenterSetup)
+		self.session.openWithCallback(self.viewCallback, ServiceCenterSetup)
+
+	def viewCallback(self, switch_now=False):
+		if switch_now and self.running_view is not config.plugins.servicemanager.showOnlyRunning.value:
+			self.switchList()
 
 plugin_name = "Service Manager"
 plugin_description = "System services control center"

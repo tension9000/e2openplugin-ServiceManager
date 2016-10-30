@@ -28,6 +28,7 @@ import os
 config.plugins.servicemanager = ConfigSubsection()
 config.plugins.servicemanager.onSetupMenu = ConfigYesNo(default=False)
 config.plugins.servicemanager.onExtensionsMenu = ConfigYesNo(default=False)
+config.plugins.servicemanager.showOnlyRunning = ConfigYesNo(default=False)
 
 def busyboxVersion():
 	version = ''
@@ -458,6 +459,7 @@ class ServiceCenterSetup(Screen, ConfigListScreen):
 		self.list = [ ]
 		self.list.append(getConfigListEntry(_("show service manager in setup menu"), config.plugins.servicemanager.onSetupMenu))
 		self.list.append(getConfigListEntry(_("show service manager in extensions menu"), config.plugins.servicemanager.onExtensionsMenu))
+		self.list.append(getConfigListEntry(_("show only running services"), config.plugins.servicemanager.showOnlyRunning))
 		self["config"].list = self.list
 		self["config"].l.setSeperation(400)
 		self["config"].l.setList(self.list)
@@ -538,7 +540,7 @@ class ServiceCenter(Screen):
 		self.list = []
 		self.index = None
 		self.serviceList = []
-		self.running_view = False
+		self.running_view = config.plugins.servicemanager.showOnlyRunning.value
 		self["list"] = List(self.list)
 
 		self["actions"] = ActionMap(["OkCancelActions", "ColorActions", "SetupActions", "MenuActions"],

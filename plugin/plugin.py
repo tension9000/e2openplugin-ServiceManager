@@ -464,12 +464,6 @@ class ServiceCenterSetup(Screen, ConfigListScreen):
 		self["config"].l.setSeperation(400)
 		self["config"].l.setList(self.list)
 
-	def keyLeft(self):
-		ConfigListScreen.keyLeft(self)
-
-	def keyRight(self):
-		ConfigListScreen.keyRight(self)
-
 	def apply(self, confirmed):
 		if not confirmed:
 			self.close()

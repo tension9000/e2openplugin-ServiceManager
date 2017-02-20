@@ -1,6 +1,8 @@
                              <<< Service Manager >>>                           
                   
            Open Source ServiceManager plugin for E2 based Linux set-top box
+           You can take control of system services, only must provide the proper
+           settings in config file (services.xml).
 
 
                                  Depends

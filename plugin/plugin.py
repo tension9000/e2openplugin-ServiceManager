@@ -205,7 +205,7 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 
 	def getServiceBootSettingFinished(self, data):
 		if data:
-			self.start_at_boot = "System" in data.split()
+			self.start_at_boot = "links" in data.split()
 			self.createBootConfigEntry()
 
 	def getServiceBootSetting(self):

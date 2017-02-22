@@ -132,7 +132,8 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 		Screen.__init__(self, session)
 		self.session = session
 		self.service = service
-		self.setup_title = _("%s Control Panel" % self.service['name'])
+		self.service_name = self.service['name']
+		self.setup_title = _("%s Control Panel" % self.service_name)
 		print "[ServiceControlPanel] open service panel:", self.service
 
 		self.list = [ ]
@@ -181,9 +182,9 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 	def updateStatePic(self, state):
 		if state:
 			self["statepic"].setPixmapNum(2)
-		elif self.service['name'] == "Telnet" and readInetdConfFile("telnet"):
+		elif self.service_name == "Telnet" and readInetdConfFile("telnet"):
 			self["statepic"].setPixmapNum(1)
-		elif self.service['name'] == "Vsftpd" and readInetdConfFile("ftp"):
+		elif self.service_name == "Vsftpd" and readInetdConfFile("ftp"):
 			self["statepic"].setPixmapNum(1)
 		else:
 			self["statepic"].setPixmapNum(0)
@@ -192,7 +193,7 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 	def updateServiceStateFinished(self, data):
 		if data:
 			self.service = data[0]
-			print "[ServiceControlPanel] service: %s  state: %s" % (self.service['name'], self.service['state'])
+			print "[ServiceControlPanel] service: %s  state: %s" % (self.service_name, self.service['state'])
 			self.updateStatePic(self.service['state'])
 
 	def updateServiceState(self):
@@ -209,11 +210,11 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 
 	def getServiceBootSetting(self):
 		init_script_mode = False
-		if self.service['name'] == "Telnet":
+		if self.service_name == "Telnet":
 			self.start_at_boot = readInetdConfFile("telnet")
-		elif self.service['name'] == "Vsftpd":
+		elif self.service_name == "Vsftpd":
 			self.start_at_boot = readInetdConfFile("ftp")
-		elif self.service['name'] == "Samba":
+		elif self.service_name == "Samba":
 			self.start_at_boot = fileExists("/etc/network/if-up.d/01samba-start")
 		elif self.service.has_key('initscript'):
 			init_script_mode = True
@@ -224,7 +225,7 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 	def createBootConfigEntry(self):
 		self.list = [ ]
 		self.startAtBootEntry = NoSave(ConfigYesNo(default=self.start_at_boot))
-		self.list.append(getConfigListEntry(_("Start %s at boot") % self.service['name'], self.startAtBootEntry))
+		self.list.append(getConfigListEntry(_("Start %s at boot") % self.service_name, self.startAtBootEntry))
 		self["config"].list = self.list
 		self["config"].l.setList(self.list)
 
@@ -244,12 +245,12 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 
 	def runMsg(self, retval):
 		ok = False
-		if self.service['name'] == "Telnet":
+		if self.service_name == "Telnet":
 			if readInetdConfFile("telnet") and self.action == "start" or self.action == "restart":
 				ok=True
 			elif not readInetdConfFile("telnet") and self.action == "stop":
 				ok=True
-		elif self.service['name'] == "Vsftpd":
+		elif self.service_name == "Vsftpd":
 			if readInetdConfFile("ftp") and self.action == "start" or self.action == "restart":
 				ok=True
 			elif not readInetdConfFile("ftp") and self.action == "stop":
@@ -259,7 +260,7 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 		if ok:
 			self.msg = self.session.open(MessageBox, _("Done."), MessageBox.TYPE_INFO, timeout = 2)
 		else:
-			self.msg = self.session.open(MessageBox, _("Error. Could not %s %s" % (self.action, self.service['name'])), MessageBox.TYPE_ERROR, timeout = 3)			
+			self.msg = self.session.open(MessageBox, _("Error. Could not %s %s" % (self.action, self.service_name)), MessageBox.TYPE_ERROR, timeout = 3)			
 		self.msg.setTitle(self.setup_title)
 
 	def startStopInetdService(self, inetdservice, action):
@@ -269,7 +270,7 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 
 	def runServiceScripts(self, action):
 		servicescripts = self.service['servicescripts'].split(',')
-		if self.service['name'] == "Samba" and not self.start_at_boot:
+		if self.service_name == "Samba" and not self.start_at_boot:
 			servicescripts = ["/etc/network/01samba-kill", "/etc/network/01samba-start"]
 		if action == "stop":
 			self.sc.runCmd(servicescripts[0], self.runCmdFinished)
@@ -294,13 +295,13 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 
 	def startStopService(self, action):
 		self.action = action
-		action_msg = _("Service: %s\nAction: %s" % (self.service['name'], action))
+		action_msg = _("Service: %s\nAction: %s" % (self.service_name, action))
 		self.msg = self.session.openWithCallback(self.runMsg, MessageBox, action_msg, MessageBox.TYPE_INFO, timeout=3, enable_input=False)
 		self.msg.setTitle(self.setup_title)
 
-		if self.service['name'] == "Telnet":
+		if self.service_name == "Telnet":
 			self.startStopInetdService("telnet", action)
-		elif self.service['name'] == "Vsftpd":
+		elif self.service_name == "Vsftpd":
 			self.startStopInetdService("ftp", action)
 		elif self.service.has_key('servicescripts'):
 			self.runServiceScripts(action)
@@ -333,11 +334,11 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 
 	def saveBootSetting(self):
 		must_start_at_boot = self["config"].getCurrent()[1].value
-		if self.service['name'] == "Telnet":
+		if self.service_name == "Telnet":
 			writeInetdConfFile("telnet")
-		elif self.service['name'] == "Vsftpd":
+		elif self.service_name == "Vsftpd":
 			writeInetdConfFile("ftp")
-		elif self.service['name'] == "Samba":
+		elif self.service_name == "Samba":
 			self.moveSambaScripts(must_start_at_boot)
 		elif self.service.has_key('initscript'):
 			if must_start_at_boot:

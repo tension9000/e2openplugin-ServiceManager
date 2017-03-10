@@ -38,7 +38,7 @@ def busyboxVersion():
 			break
 	return version
 
-def bootEnabled(service):
+def configEnabled(service):
 	for line in open("/etc/inetd.conf", "r"):
 		if line.startswith(service):
 			return True
@@ -220,7 +220,7 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 	def getServiceBootSetting(self):
 		init_script_mode = False
 		if self.inetdctrl:
-			self.start_at_boot = bootEnabled(self.inetdservice)
+			self.start_at_boot = configEnabled(self.inetdservice)
 		elif self.service_name == "Samba":
 			self.start_at_boot = fileExists("/etc/network/if-up.d/01samba-start")
 		elif 'initscript' in self.service:
@@ -253,7 +253,7 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 	def runMsg(self, retval):
 		res = False
 		if self.inetdctrl:
-			if bootEnabled(self.inetdservice) and self.action is not "stop" or not bootEnabled(self.inetdservice) and self.action == "stop":
+			if configEnabled(self.inetdservice) and self.action is not "stop" or not configEnabled(self.inetdservice) and self.action == "stop":
 				res=True
 		elif self.action is not "stop" and self.service['state'] or self.action == "stop" and not self.service['state']:
 			res=True
@@ -314,7 +314,7 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 			self.startStopService("start")
 
 	def stopService(self):
-		if self.service['state'] or self.inetdctrl and bootEnabled(self.inetdservice):
+		if self.service['state'] or self.inetdctrl and configEnabled(self.inetdservice):
 			self.startStopService("stop")
 
 	def restartService(self):
@@ -545,9 +545,9 @@ class ServiceCenter(Screen):
 				else:
 					text += "\n                    >>  running"
 			else:
-				if current['name'] == "Telnet" and bootEnabled("telnet"):
+				if current['name'] == "Telnet" and configEnabled("telnet"):
 					text += "\n                    >>  ready to requests"
-				elif current['name'] == "Vsftpd" and bootEnabled("ftp"):
+				elif current['name'] == "Vsftpd" and configEnabled("ftp"):
 					text += "\n                    >>  ready to requests"
 				else:
 					text += "\n                    >>  not running"
@@ -602,7 +602,7 @@ class ServiceCenter(Screen):
 		if data:
 			self.serviceList = data
 			for service in self.serviceList:
-				if 'inetd' in service and not service['state'] and bootEnabled(service['inetd']):			
+				if 'inetd' in service and not service['state'] and configEnabled(service['inetd']):			
 					service['state'] = None
 			self.updateEntryList()
 
@@ -680,6 +680,7 @@ class ServiceCenter(Screen):
 			self["status"].setText(text)
 			message = self.session.open(MessageBox, text, MessageBox.TYPE_ERROR, timeout=4)
 			message.setTitle(_("Package installer"))
+		self.installpkg = None
 
 	def installFinished(self, data):
 		if data:
@@ -691,7 +692,9 @@ class ServiceCenter(Screen):
 			self["status"].setText(text)
 			self.msg = self.session.openWithCallback(self.checkInstall, MessageBox, text, MessageBox.TYPE_INFO, enable_input=False)
 			self.msg.setTitle(_("Package installer"))
-			self.sc.runCmd("opkg install %s" % self["list"].getCurrent()[5]['package'], self.installFinished)
+			self.sc.runCmd("opkg install %s" % self.installpkg['package'], self.installFinished)
+		else:
+			self.installpkg = None
 
 	def selectService(self):
 		current = self["list"].getCurrent()[5]

@@ -119,7 +119,7 @@ class ServiceControlPanel(Screen, ConfigListScreen):
     <widget name="statepic" pixmaps="/usr/lib/enigma2/python/Plugins/SystemPlugins/ServiceManager/icons/stopped.png,/usr/lib/enigma2/python/Plugins/SystemPlugins/ServiceManager/icons/pause.png,/usr/lib/enigma2/python/Plugins/SystemPlugins/ServiceManager/icons/running.png" position="750,180" zPosition="10" size="40,40" transparent="1" alphatest="on"/>
     <widget name="conffile" position="590,240" size="600,40" font="Regular;24" />
     <widget name="config" position="590,320" size="500,60" font="Regular;24" selectionPixmap="PLi-HD/buttons/sel.png" scrollbarMode="showOnDemand" />
-    <widget source="menuinfo" render="Label" position="85,540" size="450,40" backgroundColor="darkgrey" transparent="1" font="Regular;20" />
+    <widget source="menuinfo" render="Label" position="85,540" size="450,120" backgroundColor="darkgrey" transparent="1" font="Regular;20" />
   </screen>"""
 
 	def __init__(self, session, service):
@@ -156,8 +156,10 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 		self["key_blue"] = StaticText("")
 
 		self["menuinfo"] = StaticText("")
+		self.configeditor = False
 
 		if 'conffile' in self.service:
+			self.configeditor = True
 			self["conffile"].setText(_("Config file:  %s") % self.service['conffile'])
 			self["key_blue"] = StaticText(_("Config"))
 			self["menuinfo"].setText(_("Press blue button to edit config file"))
@@ -221,8 +223,6 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 		init_script_mode = False
 		if self.inetdctrl:
 			self.start_at_boot = configEnabled(self.inetdservice)
-		elif self.service_name == "Samba":
-			self.start_at_boot = fileExists("/etc/network/if-up.d/01samba-start")
 		elif 'initscript' in self.service:
 			init_script_mode = True
 			self.sc.runCmd("update-rc.d -n %s defaults" % self.service['initscript'], self.getServiceBootSettingFinished)
@@ -237,10 +237,12 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 		self["config"].l.setList(self.list)
 
 	def updateInfoLabel(self):
+		text = ""
+		if self.configeditor:
+			text = _("Press blue button to edit config file") + "\n\n"
 		if self["config"].isChanged():
-			self["menuinfo"].setText(_("Press OK button to save boot config"))
-		else:
-			self["menuinfo"].setText(_("Press blue button to edit config file"))
+			text += _("Press OK button to save boot config")
+		self["menuinfo"].setText(text)
 
 	def keyLeft(self):
 		ConfigListScreen.keyLeft(self)
@@ -270,8 +272,6 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 
 	def runServiceScripts(self):
 		servicescripts = self.service['servicescripts'].split(',')
-		if self.service_name == "Samba" and not self.start_at_boot:
-			servicescripts = ["/etc/network/01samba-kill", "/etc/network/01samba-start"]
 		if self.action is not "start":
 			self.sc.runCmd(servicescripts[0], self.runCmdFinished)
 		if self.action is not "stop":
@@ -320,20 +320,10 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 	def restartService(self):
 		self.startStopService("restart")
 
-	def moveSambaScripts(self, value):
-		if value:
-			cmds = ("mv -f /etc/network/01samba-start /etc/network/if-up.d/", "mv -f /etc/network/01samba-kill /etc/network/if-down.d/")
-		else:
-			cmds = ("mv -f /etc/network/if-up.d/01samba-start /etc/network/", "mv -f /etc/network/if-down.d/01samba-kill /etc/network/")
-		for x in cmds:
-			self.sc.runCmd(x) 		
-
 	def saveBootSetting(self):
 		must_start_at_boot = self["config"].getCurrent()[1].value
 		if self.inetdctrl:
 			enableDisable(self.inetdservice)
-		elif self.service_name == "Samba":
-			self.moveSambaScripts(must_start_at_boot)
 		elif 'initscript' in self.service:
 			if must_start_at_boot:
 				init_cmd = "update-rc.d %s defaults"

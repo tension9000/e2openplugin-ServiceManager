@@ -2,7 +2,7 @@
 	<service name="Telnet" package="busybox-inetd" initscript="inetd.busybox" demon="telnetd" inetd="telnet" description="Interactive communication facility on virtual terminal connection" />
 	<service name="Vsftpd" package="vsftpd" initscript="inetd.busybox" demon="vsftpd" inetd="ftp" description="Secure and fast FTP server" conffile="/etc/vsftpd.conf" />
 	<service name="Dropbear" package="dropbear" initscript="dropbear" demon="dropbear" description="Relatively small SSH server and client" pidfile="/var/run/dropbear.pid" />
-	<service name="Samba" package="sambaserver" servicescripts="/etc/network/if-down.d/01samba-kill,/etc/network/if-up.d/01samba-start" demon="smbd" description="Support for cross-platform file and printer sharing" conffile="/etc/samba/smb.conf" />
+	<service name="Samba" package="samba-base" initscript="samba.sh" demon="smbd" description="Support for cross-platform file and printer sharing" conffile="/etc/samba/smb.conf" />
 	<service name="Cron" package="busybox-cron" initscript="busybox-cron" demon="crond" description="Daemon to execute scheduled commands" />
 	<service name="Syslog" package="busybox-syslog" initscript="syslog.busybox" demon="syslogd" description="Standard for system logging message management" pidfile="/var/run/syslogd.pid" />
 	<service name="Avahi daemon" package="avahi-daemon" initscript="avahi-daemon" demon="avahi-daemon" description="Zero-configuration networking (zeroconf) implementation" conffile="/etc/avahi/avahi-daemon.conf" pidfile="/var/run/avahi-daemon/pid" />

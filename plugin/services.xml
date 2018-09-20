@@ -9,7 +9,7 @@
 	<service name="Streamproxy" package="streamproxy" initscript="streamproxy.sh" demon="streamproxy" description="Replace the streamproxy, transtreamproxy and filestreamproxy" conffile="/etc/enigma2/streamproxy.conf" />
 	<service name="Autofs" package="autofs" initscript="autofs" demon="automount" description="Kernel based automounter for linux" conffile="/etc/autofs.conf" />
 	<service name="Djmount" package="djmount" initscript="djmount" demon="djmount" description="Mount UPnP server content as a linux filesystem" />
-	<service name="Transmission" package="transmission" initscript="transmission" demon="transmission-daemon" description="Transmission is a BitTorrent client" />
+	<service name="Transmission" package="transmission" initscript="transmission.sh" demon="transmission-daemon" description="Transmission is a BitTorrent client" />
 	<service name="Dvbsnoop" package="dvbsnoop" initscript="" demon="dvbsnoop" description="DVB/MPEG stream analyzer" />
 	<service name="Ushare" package="ushare" initscript="ushare" demon="ushare" description="UPnP media server" conffile="/etc/ushare.conf" />
 	<service name="Inadyn" package="inadyn-mt" initscript="inadyn-mt" demon="inadyn-mt" description="Client used to update DNS entries" conffile="/etc/inadyn.conf" />

@@ -157,12 +157,16 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 
 		self["menuinfo"] = StaticText("")
 		self.configeditor = False
-
 		if 'conffile' in self.service:
 			self.configeditor = True
+			self.config_file = False
 			self["conffile"].setText(_("Config file:  %s") % self.service['conffile'])
 			self["key_blue"] = StaticText(_("Config"))
-			self["menuinfo"].setText(_("Press blue button to edit config file"))
+			try:
+				open(self.service['conffile'], "r").read()
+				self.config_file = True
+			except:
+				pass
 
 		self.inetdctrl = False
 		if 'inetd' in self.service:
@@ -179,6 +183,7 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 	def layoutFinished(self):
 		self.setTitle(self.setup_title)
 		self.updateStatePic(self.service['state'])
+		self.updateInfoLabel()
 
 	def updateStatePic(self, state):
 		if state is None:
@@ -239,7 +244,10 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 	def updateInfoLabel(self):
 		text = ""
 		if self.configeditor:
-			text = _("Press blue button to edit config file") + "\n\n"
+			if self.config_file is True:
+				text = _("Press blue button to edit config file") + "\n\n"
+			else:
+				text = _("Service config file not found!") + "\n\n"
 		if self["config"].isChanged():
 			text += _("Press OK button to save boot config")
 		self["menuinfo"].setText(text)
@@ -348,7 +356,7 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 			self.close(self.service['state'])
 		
 	def editConfigFile(self):
-		if 'conffile' in self.service:
+		if 'conffile' in self.service and self.config_file is True:
 			self.session.open(ServiceConfigEdit, self.service)
 
 class ServiceConfigEdit(Screen):

@@ -15,6 +15,9 @@
 	<service name="Inadyn" package="inadyn-mt" initscript="inadyn-mt" demon="inadyn-mt" description="Client used to update DNS entries" conffile="/etc/inadyn.conf" />
 	<service name="Rsync" package="rsync" demon="rsync" description="File synchronization tool" conffile="/etc/rsyncd.conf" />
 	<service name="Openvpn" package="openvpn" initscript="openvpn" demon="openvpn" description="An application to securely tunnel IP networks over a single TCP/UDP port" conffile="/etc/openvpn/openvpn.conf" />
-</smconfig>
+	<service name="Minidlna" package="minidlna" initscript="minidlna" demon="minidlnad" description="A simple media server fully compliant with DLNA/UPnP-AV clients" pidfile="/var/run/minidlna/minidlna.pid" conffile="/etc/minidlna.conf" />
+	<service name="NFS server" package="nfs-utils" initscript="nfsserver" demon="rpc.mountd" description="The nfs-utils package provides the server daemon for the kernel NFS" conffile="/etc/exports" />
+	<service name="NFS utils" package="nfs-utils-client" initscript="nfscommon" demon="rpc.statd" description="This package provides the client daemon for the kernel NFS" conffile="/etc/nfs-utils.conf" />
+	</smconfig>
 
 

@@ -104,9 +104,10 @@ class ServiceController():
 			(callback) = callback
 			if result:
 				callback(result.strip())
+				print "[ServiceController] result:", result.strip()
 			else:
-				callback("Done")
-			print "[ServiceController] result:", result.strip()
+				callback(str(retval))
+				print "[ServiceController] retval:", retval
 
 class ServiceControlPanel(Screen, ConfigListScreen):
 

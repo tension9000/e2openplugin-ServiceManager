@@ -18,6 +18,7 @@
 	<service name="Minidlna" package="minidlna" initscript="minidlna" demon="minidlnad" description="A simple media server fully compliant with DLNA/UPnP-AV clients" pidfile="/var/run/minidlna.pid" conffile="/etc/minidlna.conf" />
 	<service name="NFS server" package="nfs-utils" initscript="nfsserver" demon="rpc.mountd" description="The nfs-utils package provides the server daemon for the kernel NFS" conffile="/etc/exports" />
 	<service name="NFS utils" package="nfs-utils-client" initscript="nfscommon" demon="rpc.statd" description="This package provides the client daemon for the kernel NFS" conffile="/etc/nfs-utils.conf" />
+	<service name="Musicpd" package="mpd" initscript="mpd" demon="mpd" description="Music Player Daemon" conffile="/etc/mpd.conf" />
 	</smconfig>
 
 

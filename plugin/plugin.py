@@ -537,19 +537,19 @@ class ServiceCenter(Screen):
 		current = self["list"].getCurrent()[5]
 		text = "Service %s" % current['name']
 		if current['status']:
-			text += "\n\n                    >>  installed"
+			text += "\n\n          >>  installed"
 			if current['state']:
 				if current['name'] == "Telnet" or current['name'] == "Vsftpd":
-					text += "\n                    >>  active connections"
+					text += "\n          >>  active connections"
 				else:
-					text += "\n                    >>  running"
+					text += "\n          >>  running"
 			else:
 				if current['name'] == "Telnet" and configEnabled("telnet"):
-					text += "\n                    >>  ready to requests"
+					text += "\n          >>  ready to requests"
 				elif current['name'] == "Vsftpd" and configEnabled("ftp"):
-					text += "\n                    >>  ready to requests"
+					text += "\n          >>  ready to requests"
 				else:
-					text += "\n                    >>  not running"
+					text += "\n          >>  not running"
 			text += "\n\nPress OK to open %s control panel" % current['name']
 		else:
 			text += " not installed!\n\nPress OK to install it now."

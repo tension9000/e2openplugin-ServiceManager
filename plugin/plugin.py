@@ -91,7 +91,7 @@ class ServiceController():
 					if command == srv['demon']:
 						srv['state'] = True
 						break
-				print "[ServiceController] service: %s  state: %s" % (srv['name'], srv['state'])
+				print ("[ServiceController] service: %s  state: %s" % (srv['name'], srv['state']))
 			callback(srvlist)
 
 	def runCmd(self, cmd, callback=None):
@@ -104,10 +104,10 @@ class ServiceController():
 			(callback) = callback
 			if result:
 				callback(result.strip())
-				print "[ServiceController] result:", result.strip()
+				print ("[ServiceController] result:", result.strip())
 			else:
 				callback(str(retval))
-				print "[ServiceController] retval:", retval
+				print ("[ServiceController] retval:", retval)
 
 class ServiceControlPanel(Screen, ConfigListScreen):
 
@@ -129,7 +129,7 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 		self.service = service
 		self.service_name = self.service['name']
 		self.setup_title = _("%s Control Panel" % self.service_name)
-		print "[ServiceControlPanel] open service panel:", self.service
+		print ("[ServiceControlPanel] open service panel:", self.service)
 		self.list = [ ]
 		ConfigListScreen.__init__(self, self.list, session = session)
 		self.startAtBootEntry = None
@@ -198,13 +198,13 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 	def updateServiceStateFinished(self, data):
 		if data:
 			self.service = data[0]
-			print "[ServiceControlPanel] service: %s  state: %s" % (self.service_name, self.service['state'])
+			print ("[ServiceControlPanel] service: %s  state: %s" % (self.service_name, self.service['state']))
 			self.updateStatePic(self.service['state'])
 
 	def updateInetdServiceStateFinished(self, data):
 		state = False
 		if data:
-			print "[ServiceControlPanel] service inetd: %s  data: %s" % (self.service_name, data)
+			print ("[ServiceControlPanel] service inetd: %s  data: %s" % (self.service_name, data))
 			if "ESTABLISHED" in data.split():
 				state = True
 			elif "LISTEN" in data.split():
@@ -264,9 +264,9 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 	def runMsg(self, retval):
 		res = False
 		if self.inetdctrl:
-			if configEnabled(self.inetdservice) and self.action is not "stop" or not configEnabled(self.inetdservice) and self.action == "stop":
+			if configEnabled(self.inetdservice) and self.action != "stop" or not configEnabled(self.inetdservice) and self.action == "stop":
 				res=True
-		elif self.action is not "stop" and self.service['state'] or self.action == "stop" and not self.service['state']:
+		elif self.action != "stop" and self.service['state'] or self.action == "stop" and not self.service['state']:
 			res=True
 		if res:
 			self.msg = self.session.open(MessageBox, _("Done."), MessageBox.TYPE_INFO, timeout = 2)
@@ -275,15 +275,15 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 		self.msg.setTitle(self.setup_title)
 
 	def startStopInetdService(self):
-		if self.action is not "restart":
+		if self.action != "restart":
 			enableDisable(self.inetdservice)
 		self.sc.runCmd("killall -HUP inetd", self.runCmdFinished)
 
 	def runServiceScripts(self):
 		servicescripts = self.service['servicescripts'].split(',')
-		if self.action is not "start":
+		if self.action != "start":
 			self.sc.runCmd(servicescripts[0], self.runCmdFinished)
-		if self.action is not "stop":
+		if self.action != "stop":
 			self.sc.runCmd(servicescripts[1], self.runCmdFinished)
 
 	def runCustomScript(self):
@@ -295,7 +295,7 @@ class ServiceControlPanel(Screen, ConfigListScreen):
 
 	def runCmdFinished(self, data):
 		if data:		# set time point - analize output?????
-			print "[ServiceControlPanel] start/stop cmd finished"
+			print ("[ServiceControlPanel] start/stop cmd finished")
 #			if "usage" in data.split():
 #				self.session.open(MessageBox, _("Check %s init script!" % self.service['initscript']), MessageBox.TYPE_ERROR, timeout = 5)
 
@@ -378,7 +378,7 @@ class ServiceConfigEdit(Screen):
 		try:
 			self.list = open(self.service['conffile'], "r").read().splitlines()
 		except:
-			print "[ServiceConfigEdit] could not read config file:", self.service['conffile']
+			print ("[ServiceConfigEdit] could not read config file:", self.service['conffile'])
 			self.list.append("Error reading config file:", self.service['conffile'])
 
 		title = _("%s Config Editor") % self.service['name']
@@ -567,9 +567,9 @@ class ServiceCenter(Screen):
 			tree = smparse(filename).getroot()
 			for service in tree.findall("service"):
 				self.serviceList.append(self.addKeys(service.attrib))
-			print "[ServiceManager] servicelist length:", len(self.serviceList)
+			print ("[ServiceManager] servicelist length:", len(self.serviceList))
 		except:
-			print "[ServiceManager] could not read sm config file: 'services.xml'"
+			print ("[ServiceManager] could not read sm config file: 'services.xml'")
 
 	def checkServiceListStatus(self, services):
 		try:
@@ -577,9 +577,9 @@ class ServiceCenter(Screen):
 			for srv in services:
 				checkline = "Package: %s" % srv['package']
 				srv['status'] = checkline in statusfile
-#				print "[ServiceManager] service: %s  status: %s" % (srv['name'] , srv['status'])
+#				print ("[ServiceManager] service: %s  status: %s" % (srv['name'] , srv['status']))
 		except:
-			print "[ServiceManager] could not read status file: '/var/lib/opkg/status'"
+			print ("[ServiceManager] could not read status file: '/var/lib/opkg/status'")
 
 	def getPkgInfo(self):
 		try:
@@ -593,9 +593,9 @@ class ServiceCenter(Screen):
 					if version == busyboxVersion():
 						version += "  [Busybox]"
 					srv['version'] = version
-#					print "[ServiceManager] service %s  version %s" % (srv['name'] , srv['version'])
+#					print ("[ServiceManager] service %s  version %s" % (srv['name'] , srv['version']))
 		except:
-			print "[ServiceManager] could not read control file: '/var/lib/opkg/info/%s.control'" % srv['package']
+			print ("[ServiceManager] could not read control file: '/var/lib/opkg/info/%s.control'" % srv['package'])
 
 	def updateServiceListStateFinished(self, data):
 		if data:
